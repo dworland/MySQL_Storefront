@@ -54,21 +54,19 @@ function promptQuestions() {
 			if (err) throw err;
 
 			var productData = res[placeInArr];
-			console.log("Is this the item? " + productData);
 			var updatedQuantity = productData.stock_quantity - quantity;
 
 			if (quantity <= productData.stock_quantity) {
-				console.log("Congratulations, the product you requested is in stock! Your order is being placed!");
+				console.log("\nCongratulations, the product you requested is in stock! Your order is being placed!");
 
 				var updateQueryStr = "UPDATE products SET stock_quantity = " + updatedQuantity + " WHERE item_id = " + item;
-				console.log(updateQueryStr);
 
 				// Update the inventory
 				connection.query(updateQueryStr, function(err, data) {
 					if (err) throw err;
 
-					console.log('Your oder has been placed! Your total is $' + productData.price * quantity);
-					console.log('Thank you for shopping with us!');
+					console.log("\nYour oder has been placed! Your total is $" + productData.price * quantity);
+					console.log("\nThank you for shopping with us!");
 					console.log("\n---------------------------------------------------------------------\n");
 
 					// End the database connection
