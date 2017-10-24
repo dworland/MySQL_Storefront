@@ -33,14 +33,12 @@ function promptQuestions() {
 			name: 'item_id',
 			message: 'Please enter the Item ID that you would like to purchase.',
 			validate: validateInput, 
-			// filter: Number
 		},
 		{
 			type: 'input',
 			name: 'quantity',
 			message: 'How many do you need?',
 			validate: validateInput
-			// filter: Number
 		}
 	]).then(function(input) {
 		var item = input.item_id;
