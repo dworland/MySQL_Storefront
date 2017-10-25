@@ -25,6 +25,16 @@ function validateInput(value) {
 	}
 }
 
+function validateNumber(value) {
+	var number = parseFloat(value);
+	var positive = parseFloat(value) > 0;
+
+	if (number && positive) {
+		return true;
+	} else {
+		return "Please enter a positive number for the unit price."	}
+}
+
 
 function promptManager() {
 	inquirer.prompt([
@@ -122,7 +132,6 @@ function addInventory() {
 		var placeInArr = itemInArr - 1;
 
 		var quantity = input.quantity;
-		var parsedQty = parseInt(quantity);
 
 		var queryStr = "SELECT * FROM products";
 
@@ -130,23 +139,68 @@ function addInventory() {
 			if (err) throw err;
 
 			var productData = res[placeInArr];
-			console.log(productData);
-			var updatedQuantity = productData.stock_quantity + quantity;
-			var parsedUpdatedQty = parseInt(updatedQuantity);
 
-
-			var updateQueryStr = "UPDATE products SET stock_quantity = " + parsedUpdatedQty + " WHERE item_id = " + item;
+			var updateQueryStr = "UPDATE products SET stock_quantity = " + ( parseInt(productData.stock_quantity) + parseInt(quantity) ) + " WHERE item_id = " + item;
 
 			connection.query(updateQueryStr, function(err, data) {
 				if (err) throw err;
 
-				console.log("\nStock quantity for Item ID " + item + " has been updated to " + updatedQuantity);
+				console.log("\nStock quantity for Item ID " + item + " has been updated to " + (parseInt(productData.stock_quantity) + parseInt(quantity)));
 				console.log("\n---------------------------------------------------------------------\n");
 
 				// End the database connection
 				connection.end();
 			});
 
+		});
+	})
+}
+
+
+function newProduct() {
+	inquirer.prompt([
+		{
+			type: 'input',
+			name: 'product_name',
+			message: 'Please enter the name of the new product you would like to add.',
+		},
+		{
+			type: 'input',
+			name: 'department_name',
+			message: 'Which department does the new product belong to?',
+		},
+		{
+			type: 'input',
+			name: 'price',
+			message: 'What is the price per unit of the item?',
+			validate: validateNumber
+		},
+		{
+			type: 'input',
+			name: 'stock_quantity',
+			message: 'How many would you like to add?',
+			validate: validateInput
+		}
+	]).then(function(input) {
+
+		console.log("\nNew Product Info: \n");   
+		console.log("Product Name = " + input.product_name + "\n"); 
+		console.log("Department = " + input.department_name + "\n")  
+		console.log("price = " + input.price + "\n");  
+		console.log("Stock Quantity = " + input.stock_quantity + "\n");
+
+		// Create the insertion query string
+		var queryStr = 'INSERT INTO products SET ?';
+
+		// Add new product to the db
+		connection.query(queryStr, input, function (error, results, fields) {
+			if (error) throw error;
+
+			console.log('A new product has been added to the inventory under Item ID ' + results.insertId + '.');
+			console.log("---------------------------------------------------------------------\n");
+
+			// End the database connection
+			connection.end();
 		});
 	})
 }
